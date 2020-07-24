@@ -14,7 +14,7 @@ steps:
 - task: UiPathPack@2
   inputs:
     versionType: 'AutoVersion'
-    projectJsonPath: 'clien-sample'
+    projectJsonPath: 'clien-sample\project.json'
     outputType: 'Process'
     orchestratorConnection: 'cloud'
     outputPath: '$(Build.ArtifactStagingDirectory)\Output'
