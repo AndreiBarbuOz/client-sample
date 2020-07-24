@@ -7,13 +7,20 @@ trigger:
 - master
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'windows-latest'
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+- task: UiPathPack@2
+  inputs:
+    versionType: 'AutoVersion'
+    projectJsonPath: 'clien-sample'
+    outputType: 'Process'
+    orchestratorConnection: 'cloud'
+    outputPath: 
+- task: UiPathDeploy@2
+  inputs:
+    orchestratorConnection: 'cloud'
+    packagesPath: '$(Build.ArtifactStagingDirectory)\Output'
+    folderName: 'Default'
+  
