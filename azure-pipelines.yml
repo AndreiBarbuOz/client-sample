@@ -17,7 +17,8 @@ steps:
     projectJsonPath: 'clien-sample'
     outputType: 'Process'
     orchestratorConnection: 'cloud'
-    outputPath: 
+    outputPath: '$(Build.ArtifactStagingDirectory)\Output'
+
 - task: UiPathDeploy@2
   inputs:
     orchestratorConnection: 'cloud'
