@@ -11,6 +11,9 @@ pool:
 
 steps:
 
+- script: dir
+
+
 - task: UiPathPack@2
   inputs:
     versionType: 'AutoVersion'
