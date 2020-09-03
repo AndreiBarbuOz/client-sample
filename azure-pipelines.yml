@@ -1,19 +1,63 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
-- master
+  - master
+variables:
+  - group: uipath-cicd
+  - name: agent.preferPowerShellOnContainers
+    value: "True"
+  - name: System.Debug
+    value: True
 
-pool:
-  vmImage: 'ubuntu-latest'
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+stages:
+  - stage: BuildAndDeployUat
+    displayName: Create build artifact
+    jobs:
+      - job: BuildArtifact
+        pool:
+          vmImage: "windows-latest"
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+        steps:
+          - task: UiPathPack@2
+            inputs:
+              versionType: AutoVersion
+              #version: '1.0.0' # Required when versionType == ManualVersion
+              projectJsonPath: '$(Build.SourcesDirectory)'
+              outputPath: '$(Build.ArtifactStagingDirectory)\output'
+              #outputType: 'None' # Options: Process, Library, Tests, Objects, None
+              orchestratorConnection: 'uat' # Service connection to UiPath Orchestrator
+
+          - task: UiPathDeploy@2
+            inputs:
+              orchestratorConnection: 'uat' # Service connection to UiPath Orchestrator
+              packagesPath: '$(Build.ArtifactStagingDirectory)\output'
+              folderName: 'Default'
+              environments: 'test-machines' # Optional
+
+
+          - publish: $(Build.ArtifactStagingDirectory)\output
+            artifact: drop
+
+  - stage: DeployProd
+    displayName: Deploy build artifact to Prod
+    dependsOn: DeployUat
+    condition: succeeded()
+    jobs:
+      - deployment: deployProd
+        displayName: Deploy package to Prod Orchestrator
+        pool:
+          vmImage: "windows-latest"
+        environment: prod
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: drop
+                  displayName: Download build artifact on build agent
+                - task: UiPathDeploy@2
+                  inputs:
+                    orchestratorConnection: 'prod' # Service connection to UiPath Orchestrator
+                    packagesPath: '$(Pipeline.Workspace)\drop'
+                    folderName: 'Default'
+                    environments: 'test-machines' # Optional
+
