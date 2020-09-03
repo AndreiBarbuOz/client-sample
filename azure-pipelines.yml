@@ -38,7 +38,7 @@ stages:
 
   - stage: DeployProd
     displayName: Deploy build artifact to Prod
-    dependsOn: DeployUat
+    dependsOn: BuildAndDeployUat
     condition: succeeded()
     jobs:
       - deployment: deployProd
