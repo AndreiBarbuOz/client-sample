@@ -1,11 +1,10 @@
 trigger:
   - master
 variables:
-  - group: uipath-cicd
   - name: agent.preferPowerShellOnContainers
     value: "True"
   - name: System.Debug
-    value: True
+    value: "True"
 
 
 stages:
