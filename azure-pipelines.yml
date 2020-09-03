@@ -58,5 +58,5 @@ stages:
                     orchestratorConnection: 'prod' # Service connection to UiPath Orchestrator
                     packagesPath: '$(Pipeline.Workspace)\drop'
                     folderName: 'Default'
-                    environments: 'test-machines' # Optional
+                    environments: 'prod-machines' # Optional
 
